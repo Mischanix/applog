@@ -1,15 +1,14 @@
 // Package applog provides global logging methods so that multiple packages may
 // log to a single application-defined stream.
 //
-// If any logging methods are called before SetOutput is called, os.Stdout will
-// be used as a fallback.
+// If any logging methods are called before SetOutput is called, they will not
+// output.
 package applog
 
 import (
   "fmt"
   "io"
   "log"
-  "os"
 )
 
 type LogLevel int
@@ -40,11 +39,7 @@ const logFlags = log.LstdFlags | log.Lshortfile
 var logger *log.Logger
 
 func write(msg string, level LogLevel) {
-  if Level >= level {
-    if logger == nil {
-      SetOutput(os.Stdout)
-    }
-
+  if Level >= level && logger != nil {
     // 3 = Output, 2 = write, 1 = ..., 0 = caller
     // logger comes with its own mutex
     logger.Output(3, fmt.Sprintf(
